@@ -22,13 +22,6 @@ namespace ROCKSDB_NAMESPACE {
 // If the factory successfully recognized the input ID, the method should return
 // success; otherwise false should be returned.  On success, the object
 // parameter contains the new object.
-/*
- * FactoryFunc函数用于创建一个新的可定制对象，
- * 而不需要遍历ObjectRegistry。这种方法在没有对象注册表的LITE模式中特别有用。
- * 这些方法接受要创建的对象的ID和存储已创建对象的指针。
- * 如果工厂成功识别输入的ID，该方法应该返回success;否则返回false。如果成功，则对象参数包含新对象。
- *
- * */
 template <typename T>
 using SharedFactoryFunc =
     std::function<bool(const std::string&, std::shared_ptr<T>*)>;

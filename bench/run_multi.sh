@@ -11,7 +11,7 @@ today=`date +%Y-%m-%d`
 
 # mod="single-noWAL-40T-375M-1"
 # echo "load start"
-# # sudo cgexec -g blkio:test_write ./ycsbc -db rocksdb load -dbPath /mnt/sdb/testRocksdb -threads 20 -P ../workloads/workloada1KB80GB.spec -dbConfig ../db_config/rocksdb_config.ini > load1KB80GB_${today}_${mod}.txt 2>&1
+# sudo cgexec -g blkio:test_write ./ycsbc -db rocksdb load -dbPath /mnt/sdb/testRocksdb -threads 20 -P ../workloads/workloada1KB80GB.spec -dbConfig ../db_config/rocksdb_config.ini > load1KB80GB_${today}_${mod}.txt 2>&1
 # sudo cgexec -g blkio:test_write ./ycsbc -db rocksdb load -dbPath /mnt/raid0/testRocksdb -threads 40 -P ../workloads/workloada1KB20GB.spec -dbConfig ../db_config/rocksdb_config_withoutWAL.ini > load1KB20GB_${today}_${mod}.txt 2>&1
 
 # sleep 300

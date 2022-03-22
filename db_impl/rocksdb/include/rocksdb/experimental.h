@@ -25,13 +25,5 @@ Status SuggestCompactRange(DB* db, const Slice* begin, const Slice* end);
 Status PromoteL0(DB* db, ColumnFamilyHandle* column_family,
                  int target_level = 1);
 
-
-// add by wzp start
-
-// 增加一个compaction work
-Status AddOneCompactionWork(DB* db,ColumnFamilyHandle* columnFamily);
-
-Status HangOnOneCompactionWork(DB* db,ColumnFamilyHandle* columnFamily);
-// add by wzp end
 }  // namespace experimental
 }  // namespace ROCKSDB_NAMESPACE

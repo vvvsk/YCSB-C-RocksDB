@@ -260,7 +260,6 @@ class Transaction {
 
   // An overload of the above method that receives a PinnableSlice
   // For backward compatibility a default implementation is provided
-
   virtual Status Get(const ReadOptions& options,
                      ColumnFamilyHandle* column_family, const Slice& key,
                      PinnableSlice* pinnable_val) {

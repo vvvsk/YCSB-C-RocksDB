@@ -35,12 +35,12 @@ RocksDB::RocksDB(const char *dbPath, const string dbConfig) : noResult(0) {
   // set optionssc
   rocksdb::Options options;
   rocksdb::BlockBasedTableOptions bbto;
-  options.db_paths = {{"/mnt/vol1",
-                       (uint64_t)1 * 1024 * 1024 * 1024},
-                      {"/mnt/vol2",
-                       (uint64_t)3 * 1024 * 1024 * 1024},
-                      {"/mnt/vol3",
-                       (uint64_t)300 * 1024 * 1024 * 1024}};
+  // options.db_paths = {{"/mnt/vol1",
+  //                      (uint64_t)1 * 1024 * 1024 * 1024},
+  //                     {"/mnt/vol2",
+  //                      (uint64_t)3 * 1024 * 1024 * 1024},
+  //                     {"/mnt/vol3",
+  //                      (uint64_t)300 * 1024 * 1024 * 1024}};
   options.statistics = rocksdb::CreateDBStatistics();
   statistics = options.statistics;
   options.create_if_missing = true;
@@ -96,10 +96,10 @@ int RocksDB::Read(const std::string &table, const std::string &key,
     return DB::kOK;
   if (s.IsNotFound()) {
     noResult++;
-    cout << noResult << "not found" << endl;
+    // cout << noResult << "not found" << endl;
     return DB::kOK;
   } else {
-    cerr << "read error" << endl;
+    // cerr << "read error" << endl;
     exit(0);
   }
 }

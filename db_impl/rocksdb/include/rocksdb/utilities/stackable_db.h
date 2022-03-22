@@ -16,8 +16,7 @@
 
 namespace ROCKSDB_NAMESPACE {
 
-// This class contains APIs to stack rocksdb wrappers.Eg.
-// Stack TTL over base d
+// This class contains APIs to stack rocksdb wrappers.Eg. Stack TTL over base d
 class StackableDB : public DB {
  public:
   // StackableDB take sole ownership of the underlying db.
@@ -272,40 +271,9 @@ class StackableDB : public DB {
     return db_->ContinueBackgroundWork();
   }
 
-  // add by wzp start
-  virtual Status PauseCompactionWork() override {
-    return db_->PauseCompactionWork();
-  }
-  virtual Status ContinueCompactionWork() override {
-    return db_->ContinueCompactionWork();
-  }
-
-  // 增加一个压缩进程
-  // virtual Status AddOneCompactionWork() override{
-  //   return db_->AddOneCompactionWork();
-  // }
-  // // 释放一个压缩进程
-  // virtual Status ReleaseOneCompactionWork() override{
-  //   return db_->ReleaseOneCompactionWork();
-  // }
-  // // 暂停一个压缩进程
-  // virtual Status PauseOneCompactionWork() override{
-  //   return db_->PauseOneCompactionWork();
-  // }
-  // // 继续一个压缩进程
-  // virtual Status ContinueOneCompactionWork() override{
-  //   return db_->ContinueOneCompactionWork();
-  // }
-  // add by wzp end
-
   virtual Status EnableAutoCompaction(
       const std::vector<ColumnFamilyHandle*>& column_family_handles) override {
     return db_->EnableAutoCompaction(column_family_handles);
-  }
-
-  virtual Status MyEnableAutoCompaction(
-      const std::vector<ColumnFamilyHandle*>& column_family_handles) override {
-    return db_->MyEnableAutoCompaction(column_family_handles);
   }
 
   virtual void EnableManualCompaction() override {

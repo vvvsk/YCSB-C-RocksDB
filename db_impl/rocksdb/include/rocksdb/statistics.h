@@ -413,8 +413,7 @@ enum Tickers : uint32_t {
   BACKUP_READ_BYTES,
   BACKUP_WRITE_BYTES,
 
-  TICKER_ENUM_MAX,
-
+  TICKER_ENUM_MAX
 };
 
 // The order of items listed in  Tickers should be the same as
@@ -518,13 +517,6 @@ enum Histograms : uint32_t {
   ERROR_HANDLER_AUTORESUME_RETRY_COUNT,
 
   HISTOGRAM_ENUM_MAX,
-  // add by wzp start
-  NUMBER_RATE_LIMITER_LOW_PRI_DRAINS,
-  NUMBER_RATE_LIMITER_HIGH_PRI_DRAINS,
-  // # of times compactions gets disabled.
-  COMPACTION_DISABLED_COUNT
-  //add by wzp end
-
 };
 
 extern const std::vector<std::pair<Histograms, std::string>> HistogramsNameMap;

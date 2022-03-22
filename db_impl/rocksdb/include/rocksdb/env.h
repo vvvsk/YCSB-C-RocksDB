@@ -65,9 +65,7 @@ struct ThreadStatus;
 class FileSystem;
 class SystemClock;
 struct ConfigOptions;
-// add by wzp start
-struct ImmutableMemTableOptions;
-// add by wzp end
+
 const size_t kDefaultPageSize = 4 * 1024;
 
 enum class CpuPriority {
@@ -455,22 +453,12 @@ class Env {
   // serialized.
   // When the UnSchedule function is called, the unschedFunction
   // registered at the time of Schedule is invoked with arg as a parameter.
-  /*
-   * 在后台线程中，在pri指定的线程池中运行一次"(*function)(arg)" .
-   * 默认情况下，任务会转到'LOW'优先级线程池。
-   * "function"可以运行在一个未指定的线程中。添加到同一个Env中的多个函数可以在不同的线程中并发运行。
-   * 也就是说，调用者不能假设后台工作项是序列化的。
-   * 当UnSchedule函数被调用，在Schedule时间注册的unschedFunction被调用，参数为arg。
-   * */
   virtual void Schedule(void (*function)(void* arg), void* arg,
                         Priority pri = LOW, void* tag = nullptr,
                         void (*unschedFunction)(void* arg) = nullptr) = 0;
 
   // Arrange to remove jobs for given arg from the queue_ if they are not
   // already scheduled. Caller is expected to have exclusive lock on arg.
-  /*
-   * 将指定参数的任务从queue_中删除，如果它们还没有被调度。调用者在arg上应该有独占锁。
-   * */
   virtual int UnSchedule(void* /*arg*/, Priority /*pri*/) { return 0; }
 
   // Start a new thread, invoking "function(arg)" within the new thread.
@@ -560,8 +548,6 @@ class Env {
   // Enlarge number of background worker threads of a specific thread pool
   // for this environment if it is smaller than specified. 'LOW' is the default
   // pool.
-
-  //TODO:(wzp) 这里是一个参考的点
   virtual void IncBackgroundThreadsIfNeeded(int number, Priority pri) = 0;
 
   // Lower IO priority for threads from the specified pool.
@@ -668,120 +654,6 @@ class Env {
   const std::shared_ptr<SystemClock>& GetSystemClock() const;
 
   // If you're adding methods here, remember to add them to EnvWrapper too.
-
-  // add by wzp start
-  bool disable_auto_compactions;
-  int prev_level0_file_num_compaction_trigger;
-  int level0_file_num_compaction_trigger;
-  /* buffer size 相关 */
-  bool auto_tuned_memtable = true;
-  int pre_write_buffer_size = 64 << 20; //64M ==  67108864
-  int write_buffer_size =  64 << 20; //64M ==  67108864
-  int pre_max_write_buffer_number = 6;
-  int max_write_buffer_number = 6;
-  int factor = 2;
-
-
-  /* bloom filter 相关 */
-  bool auto_tuned_bloom_filter = false;
-  int bloom_filter_size;
-  bool prefix_extractor;
-  bool whole_key_filter;
-  double pre_memtable_prefix_bloom_size_ratio;
-  double memtable_prefix_bloom_size_ratio;
-  int memtable_prefix_bloom_bits;
-
-  void TunedBloomFiler(double getmicrosec_ratio){
-    if(getmicrosec_ratio >= 1.0){
-      prefix_extractor = true;
-      whole_key_filter = true;
-      auto_tuned_bloom_filter = true;
-
-      pre_memtable_prefix_bloom_size_ratio = memtable_prefix_bloom_size_ratio;
-      memtable_prefix_bloom_size_ratio = (getmicrosec_ratio - 0.25) * 0.25;
-
-      // memtable_prefix_bloom_size_ratio 最大值为0.25
-      if(memtable_prefix_bloom_size_ratio > 0.25){
-        memtable_prefix_bloom_size_ratio = 0.25;
-      }
-      memtable_prefix_bloom_bits = write_buffer_size * memtable_prefix_bloom_size_ratio;
-    }else if(getmicrosec_ratio <= 0.75){
-      prefix_extractor = false;
-      whole_key_filter = false;
-      auto_tuned_bloom_filter = false;
-
-      memtable_prefix_bloom_size_ratio = pre_memtable_prefix_bloom_size_ratio;  //调整为之前的
-      memtable_prefix_bloom_bits = write_buffer_size * pre_memtable_prefix_bloom_size_ratio;
-    }else{
-      // 中间的就保持不动
-    }
-  }
-
-
-  void TunedMemtable(bool ratio,int num_imm_unflushed) {
-    if (ratio >= 0.8) {  // 说明当前Memtable容量仍然无法满足当前系统的写入速度
-      if(factor <= 8){
-        write_buffer_size = pre_write_buffer_size * factor;
-        factor *= 2;
-        if(write_buffer_size > 1 * 1024 * 1024 * 1024){
-          write_buffer_size =  1 * 1024 * 1024 * 1024; /* 最大值 1G*/
-        }
-      }else{ /* 恢复默认值  需要增加 buffer_number 的数量 */
-        factor = 2;
-        write_buffer_size = pre_write_buffer_size;
-        max_write_buffer_number++ ;
-        if(num_imm_unflushed >= max_write_buffer_number-2){ /* 线性增加max_write_buffer_number */
-          max_write_buffer_number++ ;
-        }
-      }
-    }else if(ratio <= 0.5){
-      if(factor >= 2){
-        factor /= 2;
-        write_buffer_size = pre_write_buffer_size * factor;
-      }else{  /* factor == 1  减少内存中存在的imm数量 */
-        max_write_buffer_number--;
-        if(num_imm_unflushed <= 0.5 * max_write_buffer_number){ /* 未flush的远小于max_write_buffer_number */
-          max_write_buffer_number--;
-        }
-        if(max_write_buffer_number < pre_max_write_buffer_number){   /* 不得小于默认值 */
-          max_write_buffer_number = pre_max_write_buffer_number;
-        }
-      }
-    }else{
-      // Nothing to do
-    }
-  }
-
-  void AdjustL0_file_num_compaction_trigger(int64_t new_bytes_per_sec ,
-                                           int64_t prev_bytes_per_sec){
-    //TODO:(wzp) 设计一个变化函数
-    const int k = 10;
-    level0_file_num_compaction_trigger =
-        level0_file_num_compaction_trigger +
-        (new_bytes_per_sec-prev_bytes_per_sec)/k;
-  }
-
-
-
-
-  void DisableCompactions() {
-    if (!disable_auto_compactions) {
-      prev_level0_file_num_compaction_trigger =
-          level0_file_num_compaction_trigger;
-      disable_auto_compactions = true;
-      level0_file_num_compaction_trigger = (1<<30);
-    }
-  }
-
-  void EnableCompactions() {
-    if (disable_auto_compactions) {
-      disable_auto_compactions = false;
-      level0_file_num_compaction_trigger =
-          prev_level0_file_num_compaction_trigger;
-    }
-  }
-  // add by wzp end
-
 
  protected:
   // The pointer to an internal structure that will update the

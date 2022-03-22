@@ -195,13 +195,7 @@ struct CompressionOptions {
 // placement and/or coding.
 // Reserve some numbers in the middle, in case we need to insert new tier
 // there.
-/*
- * 文件温度。用于传递到FileSystem以获得不同的位置和/或编码。
- * 在中间保留一些数字，以防我们需要在那里插入新的层。
- *
- * */
 enum class Temperature : uint8_t {
-  //todo:(WZP) 文件温度是否可以考虑降温
   kUnknown = 0,
   kHot = 0x04,
   kWarm = 0x08,
@@ -348,14 +342,6 @@ struct AdvancedColumnFamilyOptions {
   // Default: 0 (disable)
   //
   // Dynamically changeable through SetOptions() API
-
-  /*
-   * 如果设置了prefix_extractor
-   * 且memtable_prefix_bloom_size_ratio不为0，
-   * 则为memtable创建前缀bloom，其大小为write_buffer_size * memtable_prefix_bloom_size_ratio。
-   * 如果它大于0.25，则被消毒为0.25。通过SetOptions() API动态更改
-   *
-   * */
   double memtable_prefix_bloom_size_ratio = 0.0;
 
   // Enable whole key bloom filter in memtable. Note this will only take effect
@@ -581,8 +567,8 @@ struct AdvancedColumnFamilyOptions {
   // Default: 1
   //
   // Dynamically changeable through SetOptions() API
-  std::vector<double> max_bytes_for_level_multiplier_additional = {2,1.5,4.0/3,5.0/4,6.0/5,7.0/6,8.0/7};
-      //std::vector<int>(num_levels, 1);
+  std::vector<int> max_bytes_for_level_multiplier_additional =
+      std::vector<int>(num_levels, 1);
 
   // We try to limit number of bytes in one compaction to be lower than this
   // threshold. But it's not guaranteed.
@@ -727,7 +713,7 @@ struct AdvancedColumnFamilyOptions {
   // Default: false
   //
   // Dynamically changeable through SetOptions() API
-  bool report_bg_io_stats = true;
+  bool report_bg_io_stats = false;
 
   // Files containing updates older than TTL will go through the compaction
   // process. This usually happens in a cascading way so that those entries
@@ -794,13 +780,6 @@ struct AdvancedColumnFamilyOptions {
   // If this option is set, when creating bottommost files, pass this
   // temperature to FileSystem used. Should be no-op for default FileSystem
   // and users need to plug in their own FileSystem to take advantage of it.
-  /*
-   * 该功能仍处于开发阶段，尚未完成。
-   * 如果设置了此选项，则在创建最底部文件时，将此温度传递给使用的FileSystem。
-   * 对于默认的文件系统应该是没有操作的，用户需要插入他们自己的文件系统来利用它。
-   *
-   * */
-
   Temperature bottommost_temperature = Temperature::kUnknown;
 
   // When set, large values (blobs) are written to separate blob files, and

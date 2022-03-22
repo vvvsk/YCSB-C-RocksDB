@@ -144,13 +144,6 @@ using TablePropertiesCollection =
 // any external synchronization.
 // DB is an abstract base class with one primary implementation (DBImpl)
 // and a number of wrapper implementations.
-
-/*
- * DB是一个持久的、版本化的、从键到值的有序映射。
- * 一个数据库是安全的，从多个线程并发访问，而不需要任何外部同步。
- * DB是一个抽象基类，有一个主要实现(DBImpl)和许多包装器实现。
- *
- * */
 class DB {
  public:
   // Open the database with the specified "name" for reads and writes.
@@ -1237,30 +1230,8 @@ class DB {
   // finish. After it returns, no background process will be run until
   // ContinueBackgroundWork is called, once for each preceding OK-returning
   // call to PauseBackgroundWork.
-
-  /*
-   * 这个函数将等待所有当前运行的后台进程完成。
-   * 在它返回后，没有后台进程将运行，直到“continuebackgroundwork”被调用，
-   * 每次ok返回调用“pausebackgroundwork”。
-   * */
   virtual Status PauseBackgroundWork() = 0;
   virtual Status ContinueBackgroundWork() = 0;
-
-  // add by wzp start
-  virtual Status PauseCompactionWork() = 0;
-
-  virtual Status ContinueCompactionWork() = 0;
-
-  // 这里没有考虑添加进程带来的overhead
-  // // 增加一个压缩进程
-  // virtual Status AddOneCompactionWork() = 0;
-  // // 释放一个压缩进程
-  // virtual Status ReleaseOneCompactionWork() = 0;
-  // // 暂停一个压缩进程
-  // virtual Status PauseOneCompactionWork() = 0;
-  // // 继续一个压缩进程
-  // virtual Status ContinueOneCompactionWork() = 0;
-  // add by wzp end
 
   // This function will enable automatic compactions for the given column
   // families if they were previously disabled. The function will first set the
@@ -1271,16 +1242,8 @@ class DB {
   // does NOT schedule a flush/compaction afterwards, and only changes the
   // parameter itself within the column family option.
   //
-  /*
-   * 允许自动压缩
-   * */
   virtual Status EnableAutoCompaction(
       const std::vector<ColumnFamilyHandle*>& column_family_handles) = 0;
-
-  //add by wzp start
-  virtual Status MyEnableAutoCompaction(
-      const std::vector<ColumnFamilyHandle*>& column_family_handles) = 0;
-  //add by wzp end
 
   // After this function call, CompactRange() or CompactFiles() will not
   // run compactions and fail. Calling this function will tell outstanding
@@ -1306,9 +1269,6 @@ class DB {
   }
 
   // Number of files in level-0 that would stop writes.
-  /*
-   * L0停止写的文件数
-   * */
   virtual int Level0StopWriteTrigger(ColumnFamilyHandle* column_family) = 0;
   virtual int Level0StopWriteTrigger() {
     return Level0StopWriteTrigger(DefaultColumnFamily());
@@ -1337,10 +1297,6 @@ class DB {
   // Flush all mem-table data.
   // Flush a single column family, even when atomic flush is enabled. To flush
   // multiple column families, use Flush(options, column_families).
-
-  /*
-   * 刷新所有flush men-table data
-   * */
   virtual Status Flush(const FlushOptions& options,
                        ColumnFamilyHandle* column_family) = 0;
   virtual Status Flush(const FlushOptions& options) {
@@ -1764,16 +1720,6 @@ class DB {
       std::unique_ptr<Replayer>* /*replayer*/) {
     return Status::NotSupported("NewDefaultReplayer() is not implemented.");
   }
-
-  // add by wzp start
-
-  virtual Status CompactionRepair(){
-    return Status::NotSupported("CompactionRepair is not implement");
-  }
-
-  // add by wzp end
-
-
 
 #endif  // ROCKSDB_LITE
 

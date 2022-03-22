@@ -1,7 +1,3 @@
-# YCSB-C
-
-Yahoo! Cloud Serving Benchmark in C++, a C++ version of YCSB (https://github.com/brianfrankcooper/YCSB/wiki)
-
 ## Quick Start
 
 To build YCSB-C on Ubuntu, for example:
@@ -21,3 +17,5 @@ files in the workloads dir.
 
 
 在db_impl下添加自己选择的rocksdb包含的头文件，以及编译好librocksdb.a
+在cmakelist 修改自己添加的rocksdblib.a 包名
+NMN                     

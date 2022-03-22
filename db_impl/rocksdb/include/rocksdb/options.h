@@ -262,9 +262,9 @@ struct ColumnFamilyOptions : public AdvancedColumnFamilyOptions {
   // and total file size for level-3 will be 20GB.
   //
   // Default: 256MB.
-  //这个是L1的大小
+  //
   // Dynamically changeable through SetOptions() API
-  uint64_t max_bytes_for_level_base = 256 * 1048576; //modify to 16GB
+  uint64_t max_bytes_for_level_base = 256 * 1048576;
 
   // Deprecated.
   uint64_t snap_refresh_nanos = 0;
@@ -311,12 +311,6 @@ struct ColumnFamilyOptions : public AdvancedColumnFamilyOptions {
   //
   // Default: nullptr
   std::shared_ptr<SstPartitionerFactory> sst_partitioner_factory = nullptr;
-
-  //add by wzp start
-  bool auto_tuned_compactions = false;
-  bool auto_tuned_memtable = true;
-  bool auto_tuned_bloom = false;
-  //add by wzp end
 
   // Create ColumnFamilyOptions with default values for all fields
   ColumnFamilyOptions();
@@ -857,21 +851,6 @@ struct DBOptions {
   //   0 < threshold < 1.0: mempurge triggered only for very low useful payload
   //   ratios.
   // [experimental]
-
-  /*
-   * 用于激活或去激活Mempurge特性(memtable垃圾回收)。
-   * (默认情况下禁用)。在每次刷新时，总有效负载(总条目减去垃圾条目)估计为一个比率
-   * [有效负载字节]/[memtable的大小(字节)]。然后将这个比率与这个“阈值”值进行比较:
-   * 如果ratio>threshold:刷新操作被mempurge操作替换
-      // - else:进行常规刷新操作。
-      阈值:
-      // 0.0: mempurge禁用(默认)。
-      // 1.0:建议阈值。
-      <:激进的mempurge。
-      >1.0: mempurge只在非常低的有效负载时触发
-        / /比率。
-        / /(实验)
-*/
   double experimental_mempurge_threshold = 0.0;
 
   // Amount of data to build up in memtables across all column
@@ -1234,13 +1213,6 @@ struct DBOptions {
   // allows the memtable writes not to lag behind other writes. It can be used
   // to optimize MySQL 2PC in which only the commits, which are serial, write to
   // memtable.
-  /*
-   *
-   * 如果启用,它将使用两个队列进行写入,
-   * 一个用于具有disable_memtable和一个用于也写入memtable的。
-   * 这允许memtable写入不落后于其他写入。
-   * 可以使用优化MySQL 2 pc,其中只有串行的提交写入内存表。
-   * */
   bool two_write_queues = false;
 
   // If true WAL is not flushed automatically after each write. Instead it
@@ -1746,7 +1718,6 @@ struct CompactRangeOptions {
   bool exclusive_manual_compaction = true;
   // If true, compacted files will be moved to the minimum level capable
   // of holding the data or given level (specified non-negative target_level).
-  // compacted files 将会被移动到合适的level或者给定的level
   bool change_level = false;
   // If change_level is true and target_level have non-negative value, compacted
   // files will be moved to target_level.
@@ -1758,10 +1729,8 @@ struct CompactRangeOptions {
   // if there is a compaction filter
   BottommostLevelCompaction bottommost_level_compaction =
       BottommostLevelCompaction::kIfHaveCompactionFilter;
-
   // If true, will execute immediately even if doing so would cause the DB to
   // enter write stall mode. Otherwise, it'll sleep until load is low enough.
-  //True 的话，会让DB 进入write stall 模式
   bool allow_write_stall = false;
   // If > 0, it will replace the option in the DBOptions for this compaction.
   uint32_t max_subcompactions = 0;
@@ -1770,7 +1739,7 @@ struct CompactRangeOptions {
   Slice* full_history_ts_low = nullptr;
 
   // Allows cancellation of an in-progress manual compaction.
-  // 在手动压缩里面可以用canceled 取消手动压缩
+  //
   // Cancellation can be delayed waiting on automatic compactions when used
   // together with `exclusive_manual_compaction == true`.
   std::atomic<bool>* canceled = nullptr;

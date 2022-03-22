@@ -185,11 +185,6 @@ enum class WriteStallCondition {
   kNormal,
   kDelayed,
   kStopped,
-  kOther,
-  /*
-   * add by wzp
-   * */
-
 };
 
 struct WriteStallInfo {
@@ -329,11 +324,6 @@ struct FlushJobInfo {
   // creating too many Level 0 files as compaction seems not able to
   // catch up the write request speed.  This indicates that there are
   // too many files in Level 0.
-  /*
-   *
-   * 如果为真，那么rocksdb目前正在放慢所有的写操作，
-   * 以防止创建过多的0级文件，因为压缩似乎无法赶上写请求的速度。这表明0级文件太多。
-   */
   bool triggered_writes_slowdown;
   // If true, then rocksdb is currently blocking any writes to prevent
   // creating more L0 files.  This indicates that there are too many
@@ -502,7 +492,6 @@ class EventListener : public Customizable {
   // Note that the this function must be implemented in a way such that
   // it should not run for an extended period of time before the function
   // returns.  Otherwise, RocksDB may be blocked.
-
   virtual void OnFlushCompleted(DB* /*db*/,
                                 const FlushJobInfo& /*flush_job_info*/) {}
 
@@ -536,7 +525,6 @@ class EventListener : public Customizable {
   // Note that the this function must be implemented in a way such that
   // it should not run for an extended period of time before the function
   // returns.  Otherwise, RocksDB may be blocked.
-
   virtual void OnCompactionBegin(DB* /*db*/, const CompactionJobInfo& /*ci*/) {}
 
   // A callback function for RocksDB which will be called whenever

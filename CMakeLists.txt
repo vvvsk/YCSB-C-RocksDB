@@ -30,12 +30,12 @@ target_include_directories(ycsbc
 
 target_link_directories(ycsbc
   PRIVATE
-  ${PROJECT_SOURCE_DIR}/db_impl/rocksdb/
+  ${PROJECT_SOURCE_DIR}/db_impl/
 )
 
  
 target_link_libraries(ycsbc
-  librocksdb_debug.a
+  librocksdb-original-6.25.3.a
   pthread
   tbb
   zstd
