@@ -8,6 +8,7 @@
 #include "rocksdb/filter_policy.h"
 #include "rocksdb/flush_block_policy.h"
 #include "utils/rocksdb_config.h"
+#include "rocksdb/rate_limiter.h"
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -32,6 +33,12 @@ RocksDB::RocksDB(const char *dbPath, const string dbConfig) : noResult(0) {
   bool compression = config.getCompression();
   bool directIO = config.getDirectIO();
   size_t memtable = config.getMemtable();
+
+  //add by wzp
+  bool rate_limit_bg_reads = config.getRateLimitBGReads();
+  bool rate_limiter_auto_tuned = config.getRateLimiterAutoTune();
+  uint64_t rate_limiter_bytes_per_sec = config.getRateLimiterBytesPerSec();
+  uint64_t rate_limiter_refill_period_us = config.getRateLimiterRefillPeriodUS();
   // set optionssc
   rocksdb::Options options;
   rocksdb::BlockBasedTableOptions bbto;
@@ -46,17 +53,28 @@ RocksDB::RocksDB(const char *dbPath, const string dbConfig) : noResult(0) {
   options.create_if_missing = true;
   options.write_buffer_size = memtable;
   options.target_file_size_base = 64 << 20;                  // 64MB
-  //options.target_file_size_base = 2 << 20;                   //同leveldb
   options.max_write_buffer_number = config.getMemtableNum(); // 2个imm
   options.force_consistency_checks = false; // 一致性检查 零时关闭
   // options.compaction_pri = rocksdb::kMinOverlappingRatio;
   if (config.getTiered()) {
     options.compaction_style = rocksdb::kCompactionStyleUniversal;
   }
+  
   options.max_background_jobs = config.getNumThreads();
   options.disable_auto_compactions = config.getNoCompaction();
+
+  if (rate_limiter_bytes_per_sec > 0) {
+      options.rate_limiter.reset(rocksdb::NewGenericRateLimiter(
+          rate_limiter_bytes_per_sec, rate_limiter_refill_period_us,
+          10 /* fairness */,
+          //rocksdb::RateLimiter::Mode::kAllIo
+          rate_limit_bg_reads ? rocksdb::RateLimiter::Mode::kReadsOnly
+                                    : rocksdb::RateLimiter::Mode::kWritesOnly,
+          rate_limiter_auto_tuned));
+  }
+
+
   // options.level_compaction_dynamic_level_bytes = true;
-  // options.target_file_size_base = 8<<20;
   cerr << "write buffer size: " << options.write_buffer_size << endl;
   cerr << "write buffer number: " << options.max_write_buffer_number << endl;
   cerr << "num compaction trigger: "
@@ -65,6 +83,9 @@ RocksDB::RocksDB(const char *dbPath, const string dbConfig) : noResult(0) {
   cerr << "level size base: " << options.max_bytes_for_level_base << endl;
   if (!compression)
     options.compression = rocksdb::kNoCompression;
+  else{
+    options.compression = rocksdb::kSnappyCompression;
+  }
   // if (bloomBits > 0) {
   //   bbto.filter_policy.reset(rocksdb::NewBloomFilterPolicy(bloomBits));
   // }

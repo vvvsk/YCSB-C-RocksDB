@@ -47,6 +47,12 @@ private:
   bool disableWAL_;
   int memtableNum_;
 
+  bool rate_limit_bg_reads_;
+  uint64_t rate_limiter_bytes_per_sec_;
+  uint64_t rate_limiter_refill_period_us_;
+  bool rate_limiter_auto_tuned_;
+
+
 public:
   ConfigRocksDB(){};
   void init(const string dbConfig) {
@@ -79,6 +85,12 @@ public:
     blockWriteSize_ = pt_.get<uint64_t>("config.blockWriteSize");
     disableWAL_ = pt_.get<bool>("config.disableWAL");
     memtableNum_ = pt_.get<int>("config.memtableNum");
+
+    rate_limit_bg_reads_ = pt_.get<bool>("config.rate_limit_bg_reads");
+    rate_limiter_bytes_per_sec_ = pt_.get<uint64_t>("config.rate_limiter_bytes_per_sec");
+    rate_limiter_refill_period_us_ = pt_.get<uint64_t>("config.rate_limiter_refill_period_us");
+    rate_limiter_auto_tuned_ = pt_.get<bool>("config.rate_limiter_auto_tuned");
+
   }
 
   int getBloomBits() { return bloomBits_; }
@@ -136,6 +148,16 @@ public:
   bool getDisableWAL() { return disableWAL_; }
 
   int getMemtableNum() { return memtableNum_; }
+
+  bool getRateLimitBGReads(){return rate_limit_bg_reads_;};
+  
+  uint64_t getRateLimiterBytesPerSec(){return rate_limiter_bytes_per_sec_;}
+
+  uint64_t getRateLimiterRefillPeriodUS(){return rate_limiter_refill_period_us_;}
+  
+  bool getRateLimiterAutoTune(){return rate_limiter_auto_tuned_;}
+
+
 };
 } // namespace ycsbc
 
