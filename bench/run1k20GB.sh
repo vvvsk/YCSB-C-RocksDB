@@ -20,11 +20,10 @@ fi
 
 
 exe_path="../build/ycsbc"
-threads=40
+threads=36
 patternA="../workloads/workloada1KB20GB.spec"
 db_config="../db_config/rocksdb_config.ini"
 ${exe_path} -db rocksdb load -dbPath ${db_path} -threads ${threads} -P ${patternA} -dbConfig ${db_config} > load1KB20GB_${today}_${mod}.txt 2>&1
-
 cp -r ${db_path}/* ${backup_path}
 
 #workloada
@@ -33,19 +32,24 @@ echo "runA start"
 ${exe_path} -db rocksdb run -dbPath ${db_path} -threads ${threads} -P ${patternA} -dbConfig ${db_config} > run1KB20GB_${today}_${mod}.txt 2>&1
 
 
-rm -rf ${db_path}
-cp -r ${backup_path}/* ${db_path}
+
 #workloadb
+rm -rf ${db_path}/* # 删除上次操作的数据
+cp -r ${backup_path}/* ${db_path} ## 载入这次的数据
+
 mod="nvme-workloadb-375M"
 echo "runB start"
 patternB="../workloads/workloadb1KB20GB.spec"
 ${exe_path} -db rocksdb run -dbPath ${db_path} -threads ${threads} -P ${patternB} -dbConfig ${db_config} > run1KB20GB_${today}_${mod}.txt 2>&1
 
 
-rm -rf ${db_path}
-cp -r ${backup_path}/* ${db_path}/
 
-#workloadb
+
+#workloadd
+
+rm -rf ${db_path}/*
+cp -r ${backup_path}/* ${db_path}
+
 mod="nvme-workloadd-375M"
 echo "runD start"
 patternD="../workloads/workloadd1KB20GB.spec"
