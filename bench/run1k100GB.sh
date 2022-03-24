@@ -2,7 +2,7 @@
 ulimit -c unlimited
 ulimit -n 65535
 
-today=`date +%Y-%m-%d-%H:%M:%S`
+today=`date +%Y-%m-%d-%H-%M-%S`
 
 #load
 mod="nvme-load-1k100G"
