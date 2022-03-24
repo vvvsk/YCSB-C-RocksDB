@@ -26,7 +26,7 @@ public:
   BasicDB() { name_ = "basic"; }
   void Init() {
     std::lock_guard<std::mutex> lock(mutex_);
-    cout << "A new thread begins working." << endl;
+    //cout << "A new thread begins working." << endl;
   }
 
   int Read(const std::string &table, const std::string &key,

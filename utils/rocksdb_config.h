@@ -19,7 +19,6 @@ class ConfigRocksDB {
 private:
   boost::property_tree::ptree pt_;
   int bloomBits_;
-  bool seekCompaction_;
   bool compression_;
   bool directIO_;
   bool noCompaction_;
@@ -52,13 +51,14 @@ private:
   uint64_t rate_limiter_refill_period_us_;
   bool rate_limiter_auto_tuned_;
 
+  bool write_sync_;
+
 
 public:
   ConfigRocksDB(){};
   void init(const string dbConfig) {
     boost::property_tree::ini_parser::read_ini(dbConfig, pt_);
     bloomBits_ = pt_.get<int>("config.bloomBits");
-    seekCompaction_ = pt_.get<bool>("config.seekCompaction");
     compression_ = pt_.get<bool>("config.compression");
     directIO_ = pt_.get<bool>("config.directIO");
     blockCache_ = pt_.get<size_t>("config.blockCache");
@@ -90,7 +90,7 @@ public:
     rate_limiter_bytes_per_sec_ = pt_.get<uint64_t>("config.rate_limiter_bytes_per_sec");
     rate_limiter_refill_period_us_ = pt_.get<uint64_t>("config.rate_limiter_refill_period_us");
     rate_limiter_auto_tuned_ = pt_.get<bool>("config.rate_limiter_auto_tuned");
-
+    write_sync_ = pt_.get<bool>("config.write_sync");
   }
 
   int getBloomBits() { return bloomBits_; }
@@ -100,8 +100,6 @@ public:
   int getMaxSortedRuns() { return maxSortedRuns_; }
 
   int getGCThreads() { return gcThreads_; }
-
-  bool getSeekCompaction() { return seekCompaction_; }
 
   bool getCompression() { return compression_; }
 
@@ -156,7 +154,7 @@ public:
   uint64_t getRateLimiterRefillPeriodUS(){return rate_limiter_refill_period_us_;}
   
   bool getRateLimiterAutoTune(){return rate_limiter_auto_tuned_;}
-
+  bool getWriteSync(){return write_sync_;};
 
 };
 } // namespace ycsbc

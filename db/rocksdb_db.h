@@ -5,7 +5,7 @@
 
 #ifndef YCSB_C_ROCKSDB_DB_H_
 #define YCSB_C_ROCKSDB_DB_H_
-
+#include "utils/rocksdb_config.h"
 #include "core/db.h"
 #include "core/properties.h"
 #include "rocksdb/db.h"
@@ -51,7 +51,9 @@ private:
   rocksdb::DB *db_;
   unsigned noResult;
   bool disableWAL_;
+  bool write_sync_;
   std::shared_ptr<rocksdb::Statistics> statistics;
+  void SetOptions(rocksdb::Options *options,  ConfigRocksDB &config);
   rocksdb::Iterator *it{nullptr};
 };
 

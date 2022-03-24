@@ -19,6 +19,7 @@ namespace utils {
 
 class Properties {
  public:
+  bool  CounProperty(const std::string &key);
   std::string GetProperty(const std::string &key,
       const std::string &default_value = std::string()) const;
   const std::string &operator[](const std::string &key) const;
@@ -29,7 +30,9 @@ class Properties {
  private:
   std::map<std::string, std::string> properties_;
 };
-
+inline bool Properties::CounProperty(const std::string &key){
+  return properties_.count(key)==1;
+}
 inline std::string Properties::GetProperty(const std::string &key,
     const std::string &default_value) const {
   std::map<std::string, std::string>::const_iterator it = properties_.find(key);

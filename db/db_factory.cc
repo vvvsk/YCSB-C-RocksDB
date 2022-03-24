@@ -14,12 +14,6 @@ using ycsbc::DBFactory;
 shared_ptr<DB> DBFactory::CreateDB(utils::Properties &props) {
   if (props["dbname"] == "basic") {
     return make_shared<BasicDB>();
-    /*} else if (props["dbname"] == "lock_stl") {
-      return make_shared<LockStlDB>();
-    } else if (props["dbname"] == "tbb_rand") {
-      return make_shared<TbbRandDB>();
-    } else if (props["dbname"] == "tbb_scan") {
-      return make_shared<TbbScanDB>();*/
   } else if (props["dbname"] == "rocksdb") {
     return make_shared<RocksDB>(props["dbPath"].c_str(),
                                 props.GetProperty("dbConfig", ""));

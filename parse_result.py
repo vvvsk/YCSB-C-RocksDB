@@ -4,10 +4,6 @@ import sys
 import os
 import numpy
 
-__author__ = "Jinglei Ren"
-__copyright__ = "Copyright (c) 2014 Jinglei Ren"
-__email__ = "jinglei@ren.systems"
-
 
 def main():
     if len(sys.argv) != 2 or sys.argv[1] == '-h':
