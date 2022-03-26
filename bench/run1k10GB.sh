@@ -25,7 +25,7 @@ fi
 
 
 exe_path="../build/ycsbc"
-threads=36
+threads=1
 patternA="../workloads-test/workloada1KB10GB.spec"
 db_config="../db_config/rocksdb_config.ini"
 ${exe_path} -db rocksdb load -dbPath ${db_path} -threads ${threads} -P ${patternA} -dbConfig ${db_config} > ${test_data_save_path}/load1KB10GB_${today}_${mod}.txt 2>&1

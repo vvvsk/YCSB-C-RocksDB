@@ -82,6 +82,8 @@
         "__tuple": "cpp",
         "ios": "cpp",
         "locale": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "regex": "cpp",
+        "stack": "cpp"
     }
 }

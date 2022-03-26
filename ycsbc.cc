@@ -24,10 +24,11 @@ atomic<uint64_t> ops_time[ycsbc::Operation::READMODIFYWRITE + 1];   //微秒
 
 #define INTERVAL_OPS 10000
 
+//#define ROCKSDB 1000
 void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
-
+#ifdef ROCKSDB
 void mergePerf(shared_ptr<rocksdb::PerfContext> a,
                shared_ptr<rocksdb::PerfContext> b) {
   a->write_memtable_time += b->write_memtable_time;
@@ -38,7 +39,7 @@ void mergePerf(shared_ptr<rocksdb::PerfContext> a,
   a->write_delay_time += b->write_delay_time;
   a->write_thread_wait_nanos += b->write_thread_wait_nanos;
 }
-
+#endif
 int record(shared_ptr<ycsbc::DB> db, atomic<bool> *isFinish, int duration) {
   while (!(*isFinish)) {
     std::this_thread::sleep_for(std::chrono::seconds(duration)); // sleep 10s
@@ -60,8 +61,8 @@ int DelegateClient(shared_ptr<ycsbc::DB> db, ycsbc::CoreWorkload *wl,
   }
 
   ycsbc::Client client(*db, *wl);
-  utils::Timer<utils::t_microseconds> timer1;
-  utils::Timer<utils::t_microseconds> timer2;
+  utils::Timer timer1;
+  utils::Timer timer2;
   int oks = 0;
   for (int i = 0; i < num_ops; ++i) {
     //可以在这里统计完成一定量的ops花了多少时间
@@ -114,7 +115,7 @@ int main(const int argc, const char *argv[]) {
   vector<shared_ptr<ycsbc::Histogram>> histograms;
   vector<shared_ptr<rocksdb::PerfContext>> perfs;
   vector<shared_ptr<rocksdb::IOStatsContext>> ioStatss;
-  utils::Timer<utils::t_microseconds> timer;
+  utils::Timer timer;
 
   string pattern = props.GetProperty("pattern");
 
@@ -173,7 +174,7 @@ int main(const int argc, const char *argv[]) {
 
 
     cerr << histograms[0]->ToString() << endl;
-
+    #ifdef ROCKSDB
     if (props["dbname"] == "rocksdb" &&props.CounProperty("stat")) {
       shared_ptr<rocksdb::PerfContext> perf_Context =make_shared<rocksdb::PerfContext>();
       perf_Context->Reset();
@@ -185,6 +186,7 @@ int main(const int argc, const char *argv[]) {
       cerr << "============================ DB perf/io statistics==========================="<< endl;
       cerr << perf_Context->ToString() << endl;
     }
+    #endif
   }
 
   // Peforms transactions
@@ -210,10 +212,8 @@ int main(const int argc, const char *argv[]) {
       his->Clear();
       histograms.emplace_back(his);
       if (props["dbname"] == "rocksdb") {
-        shared_ptr<rocksdb::PerfContext> perf_Context =
-            make_shared<rocksdb::PerfContext>();
-        shared_ptr<rocksdb::IOStatsContext> iostats_Context =
-            make_shared<rocksdb::IOStatsContext>();
+        shared_ptr<rocksdb::PerfContext> perf_Context =make_shared<rocksdb::PerfContext>();
+        shared_ptr<rocksdb::IOStatsContext> iostats_Context =make_shared<rocksdb::IOStatsContext>();
 
         perfs.emplace_back(perf_Context);
 
@@ -263,8 +263,8 @@ int main(const int argc, const char *argv[]) {
       histograms[0]->Merge(*histograms[i]);
     }
     cerr << histograms[0]->ToString() << endl;
+    #ifdef ROCKSDB
     if (props["dbname"] == "rocksdb" &&props.CounProperty("stat")) {
-      cout<<"dasdasdaaaaaaaaaaaa";
       shared_ptr<rocksdb::PerfContext> perf_Context =
           make_shared<rocksdb::PerfContext>();
       perf_Context->Reset();
@@ -278,6 +278,7 @@ int main(const int argc, const char *argv[]) {
            << endl;
       cerr << perf_Context->ToString() << endl;
     }
+    #endif
   }
 }
 

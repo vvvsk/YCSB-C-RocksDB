@@ -14,6 +14,7 @@
 uint64_t get_now_micros(){
     struct timeval tv;
     gettimeofday(&tv, NULL);
+    // delete tv;
     return (tv.tv_sec) * 1000000 + tv.tv_usec;
 }
 
@@ -25,7 +26,7 @@ typedef std::chrono::duration<double, std::micro> t_microseconds;
 typedef std::chrono::duration<double, std::milli> t_milliseconds;
 typedef std::chrono::duration<double> t_seconds;
 
-template <typename T> class Timer {
+template <typename T> class Tim {
 public:
   void Start() { time_ = Clock::now(); }
 
@@ -41,6 +42,22 @@ private:
 
   Clock::time_point time_;
 };
+
+
+class Timer {
+public:
+  void Start() { time_ = get_now_micros(); }
+
+  double End() {
+    uint64_t t = get_now_micros();
+    uint64_t ret = (t - time_);
+    return ret;
+  }
+
+  uint64_t time_;
+};
+
+
 
 } // namespace utils
 

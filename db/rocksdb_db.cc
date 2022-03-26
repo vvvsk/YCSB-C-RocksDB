@@ -184,7 +184,8 @@ void RocksDB::SetOptions(rocksdb::Options *options, ConfigRocksDB &config){
   
   options->max_background_jobs = config.getNumThreads();
   options->disable_auto_compactions = config.getNoCompaction(); //不要触发自动compaction 为假，那么就是要做自动做compaction
-
+  
+  //是否开启rate_limiter
   if (rate_limiter_bytes_per_sec > 0) {
       options->rate_limiter.reset(rocksdb::NewGenericRateLimiter(
           rate_limiter_bytes_per_sec, rate_limiter_refill_period_us,

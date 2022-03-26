@@ -13,10 +13,13 @@
 #include "db.h"
 #include "core_workload.h"
 #include "utils.h"
+#include <atomic>
+#include "timer.h"
+using namespace std;
+extern std::atomic<uint64_t> ops_cnt[ycsbc::Operation::READMODIFYWRITE + 1] ;    //操作个数
+extern std::atomic<uint64_t> ops_time[ycsbc::Operation::READMODIFYWRITE + 1] ;   //微秒
 
 namespace ycsbc {
-extern atomic<uint64_t> ops_cnt[ycsbc::Operation::READMODIFYWRITE + 1] ;    //操作个数
-extern atomic<uint64_t> ops_time[ycsbc::Operation::READMODIFYWRITE + 1] ;   //微秒
 
 class Client {
  public:

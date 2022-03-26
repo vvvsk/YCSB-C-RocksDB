@@ -6,7 +6,12 @@ project(ycsbc LANGUAGES CXX)
 
 #specify c++ compiler version
 set(CMAKE_CXX_STANDARD 11)
-SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_BUILD_TYPE "Release")
+
+#option(ROCKSDB "compile for rocksdb",ON)
+# if(ROCKDB)
+#   add_compile_options(-D_ROCKSDB)
+# endif()
 
 add_executable(ycsbc "")
 
@@ -25,11 +30,13 @@ target_sources(ycsbc
 target_include_directories(ycsbc
   PRIVATE
   ${PROJECT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/db_impl/rocksdb/include
+  ${PROJECT_SOURCE_DIR}/core
+  ${PROJECT_SOURCE_DIR}/db_impl/
 )
 
 target_link_directories(ycsbc
   PRIVATE
+  ${PROJECT_SOURCE_DIR}/core
   ${PROJECT_SOURCE_DIR}/db_impl/
 )
 
@@ -44,4 +51,5 @@ target_link_libraries(ycsbc
   z
   snappy
   dl
+  jemalloc
   )
